@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "server",
+      "name": "career-board-server",
       "dependencies": {
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",

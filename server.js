@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const studentRoutes = require("./routes/studentRoutes");
-const companyRoutes = require("./routes/companyRoutes");
+const adminRoutes = require("./routes/AdminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 
 dotenv.config();
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/students", studentRoutes);
-app.use("/api/companies", companyRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobRoutes);
 
 const PORT = process.env.PORT || 5000;

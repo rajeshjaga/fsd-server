@@ -1,40 +1,40 @@
 // server/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const Student = require('../models/Student');
-const Company = require('../models/Company');
+const Company = require('../models/Admin');
 
 exports.protectStudent = async (req, res, next) => {
-  let token = req.headers.authorization;
+    let token = req.headers.authorization;
 
-  if (token && token.startsWith('Bearer')) {
-    try {
-      const decoded = jwt.verify(token.split(' ')[1], process.env.JWT_SECRET);
-      if (decoded.role !== 'student') throw new Error('Not authorized as student');
+    if (token && token.startsWith('Bearer')) {
+        try {
+            const decoded = jwt.verify(token.split(' ')[1], process.env.JWT_SECRET);
+            if (decoded.role !== 'student') throw new Error('Not authorized as student');
 
-      req.user = await Student.findById(decoded.id).select('-password');
-      next();
-    } catch (err) {
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+            req.user = await Student.findById(decoded.id).select('-password');
+            next();
+        } catch (err) {
+            return res.status(401).json({ message: 'Not authorized, token failed' });
+        }
+    } else {
+        return res.status(401).json({ message: 'No token provided' });
     }
-  } else {
-    return res.status(401).json({ message: 'No token provided' });
-  }
 };
 
-exports.protectCompany = async (req, res, next) => {
-  let token = req.headers.authorization;
+exports.protectadmin = async (req, res, next) => {
+    let token = req.headers.authorization;
 
-  if (token && token.startsWith('Bearer')) {
-    try {
-      const decoded = jwt.verify(token.split(' ')[1], process.env.JWT_SECRET);
-      if (decoded.role !== 'company') throw new Error('Not authorized as company');
+    if (token && token.startsWith('Bearer')) {
+        try {
+            const decoded = jwt.verify(token.split(' ')[1], process.env.JWT_SECRET);
+            if (decoded.role !== 'company') throw new Error('Not authorized as company');
 
-      req.user = await Company.findById(decoded.id).select('-password');
-      next();
-    } catch (err) {
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+            req.user = await Company.findById(decoded.id).select('-password');
+            next();
+        } catch (err) {
+            return res.status(401).json({ message: 'Not authorized, token failed' });
+        }
+    } else {
+        return res.status(401).json({ message: 'No token provided' });
     }
-  } else {
-    return res.status(401).json({ message: 'No token provided' });
-  }
 };
