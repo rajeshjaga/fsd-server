@@ -66,7 +66,7 @@ exports.loginStudent = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-;// exports.loginStudent = async (req, res) => {
+// exports.loginStudent = async (req, res) => {
 //     try {
 //         const { email, password } = req.body;
 //         const student = await Student.findOne({ email });

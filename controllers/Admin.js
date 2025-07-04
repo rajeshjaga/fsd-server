@@ -17,6 +17,7 @@ exports.registeradmin = async (req, res) => {
 
         const exists = await admin.findOne({ email });
         if (exists) {
+            console.log(exists)
             return res.status(400).json({ message: "admin already exists" });
         }
 
@@ -24,7 +25,7 @@ exports.registeradmin = async (req, res) => {
         const Admin = await admin.create({ email, password: hashedPassword, ...rest });
 
         res.status(201).json({
-            token: generateToken(admin._id.toHexString()),
+            token: generateToken(Admin._id),
             Admin
         });
     } catch (err) {
@@ -35,16 +36,16 @@ exports.registeradmin = async (req, res) => {
 exports.loginadmin = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const admin = await admin.findOne({ email });
+        const Admin = await admin.findOne({ email });
 
         console.log(email);
-        if (admin) {
-            const isMatch = await bcrypt.compare(password, admin.password);
-            const id = admin._id.toHexString()
+        if (Admin) {
+            const isMatch = await bcrypt.compare(password, Admin.password);
+            const id = Admin._id.toHexString()
             if (isMatch) {
                 res.status(200).json({
                     token: generateToken(id),
-                    admin,
+                    Admin,
                 });
             }
         } else {
