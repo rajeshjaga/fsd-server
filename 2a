@@ -1,0 +1,49 @@
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const AdminDashboard = () => {
+    const navigate = useNavigate();
+
+    const [job, setJob] = useState({
+        title: "",
+        description: "",
+        skills: "",
+        criteria: "",
+    });
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/");
+    };
+
+    const handleChange = (e) => {
+        setJob({ ...job, [e.target.name]: e.target.value });
+    };
+
+    const handlePostJob = async () => {
+        try {
+            await axios.post("http://localhost:5000/api/jobs", job);
+            alert("Job posted successfully");
+            setJob({ title: "", description: "", skills: "", criteria: "" });
+        } catch (err) {
+            console.error("Job post failed:", err);
+        }
+    };
+
+    return (
+        <div className="min-h-screen  p-8">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold">Admin's Dashboard</h1>
+                <button onClick={handleLogout} className="bg-red-500  px-4 py-2 rounded hover:bg-red-600" >
+                    Logout
+                </button>
+            </div>
+            <div>
+                <JobPost />
+            </div>
+        </div>
+    );
+};
+
+export default AdminDashboard;

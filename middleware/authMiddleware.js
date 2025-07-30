@@ -1,7 +1,7 @@
 // server/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const Student = require('../models/Student');
-const Company = require('../models/Admin');
+const Admin = require('../models/Admin');
 
 exports.protectStudent = async (req, res, next) => {
     let token = req.headers.authorization;
@@ -27,9 +27,9 @@ exports.protectadmin = async (req, res, next) => {
     if (token && token.startsWith('Bearer')) {
         try {
             const decoded = jwt.verify(token.split(' ')[1], process.env.JWT_SECRET);
-            if (decoded.role !== 'company') throw new Error('Not authorized as company');
+            if (decoded.role !== 'admin') throw new Error('Not authorized as company');
 
-            req.user = await Company.findById(decoded.id).select('-password');
+            req.user = await Admin.findById(decoded.id).select('-password');
             next();
         } catch (err) {
             return res.status(401).json({ message: 'Not authorized, token failed' });

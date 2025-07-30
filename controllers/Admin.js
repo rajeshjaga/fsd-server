@@ -17,7 +17,6 @@ exports.registeradmin = async (req, res) => {
 
         const exists = await admin.findOne({ email });
         if (exists) {
-            console.log(exists)
             return res.status(400).json({ message: "admin already exists" });
         }
 
@@ -38,7 +37,6 @@ exports.loginadmin = async (req, res) => {
         const { email, password } = req.body;
         const Admin = await admin.findOne({ email });
 
-        console.log(email);
         if (Admin) {
             const isMatch = await bcrypt.compare(password, Admin.password);
             const id = Admin._id.toHexString()
@@ -62,10 +60,11 @@ exports.postJob = async (req, res) => {
             ...req.body,
             admin: req.user._id,
         });
+        console.log(job)
 
-        const admin = await admin.findById(req.user._id);
-        admin.jobs.push(job._id);
-        await admin.save();
+        const Admin = await admin.findById(req.user._id);
+        Admin.jobs.push(job._id);
+        await Admin.save();
 
         res.status(201).json(job);
     } catch (err) {
@@ -79,8 +78,9 @@ exports.getDashboard = async (req, res) => {
             path: "jobs",
             populate: { path: "applicants.student" },
         });
-
-        res.json(admin);
+        if (admin) {
+            res.json(admin);
+        }
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
