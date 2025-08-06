@@ -125,28 +125,94 @@ router.post("/:id/apply", auth, async (req, res) => {
 });
 
 // GET /jobs/:id - Get specific job details
+// Add this new route to your job routes file
+router.post("/bulk", async (req, res) => {
+    try {
+        const { jobIds } = req.body;
+
+        if (!jobIds || !Array.isArray(jobIds) || jobIds.length === 0) {
+            return res.status(400).json({ message: "Job IDs array is required" });
+        }
+
+        // Fetch all jobs in one database query
+        const jobs = await Job.find({ _id: { $in: jobIds } })
+            .populate("admin", "name email")
+            .lean(); // Use lean() for better performance
+
+        // Format all jobs
+        const formattedJobs = jobs.map(job => ({
+            _id: job._id,
+            id: job._id,
+            title: job.title,
+            companyName: job.companyName || (job.admin ? job.admin.name : 'Unknown Company'),
+            jobDescription: job.jobDescription || job.description,
+            skillsRequired: job.skillsRequired || [],
+            minMarks: job.minMarks || {
+                tenth: 0,
+                twelfth: 0,
+                ug: 0,
+                pg: 0
+            },
+            applicationDeadline: job.applicationDeadline,
+            applicationsCount: job.applicants ? job.applicants.length : 0,
+            status: job.status || 'open',
+            createdAt: job.createdAt,
+            location: job.location,
+            salary: job.salary,
+            description: job.description || job.jobDescription,
+            requirements: job.requirements,
+            experience: job.experience,
+            jobType: job.jobType,
+            admin: job.admin
+        }));
+
+        res.json({
+            success: true,
+            jobs: formattedJobs,
+            count: formattedJobs.length
+        });
+    } catch (error) {
+        console.error('Error fetching multiple jobs:', error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching jobs",
+            error: error.message
+        });
+    }
+});
+
+// Keep the existing single job route for individual lookups
 router.get("/:id", async (req, res) => {
     try {
         const job = await Job.findById(req.params.id).populate("admin", "name email");
         if (!job) {
             return res.status(404).json({ message: "Job not found" });
         }
-
         const formattedJob = {
             _id: job._id,
             id: job._id,
             title: job.title,
             companyName: job.companyName || (job.admin ? job.admin.name : 'Unknown Company'),
+            jobDescription: job.jobDescription || job.description,
+            skillsRequired: job.skillsRequired || [],
+            minMarks: job.minMarks || {
+                tenth: 0,
+                twelfth: 0,
+                ug: 0,
+                pg: 0
+            },
+            applicationDeadline: job.applicationDeadline,
             applicationsCount: job.applicants ? job.applicants.length : 0,
             status: job.status || 'open',
             createdAt: job.createdAt,
             location: job.location,
             salary: job.salary,
-            description: job.description,
+            description: job.description || job.jobDescription,
             requirements: job.requirements,
+            experience: job.experience,
+            jobType: job.jobType,
             admin: job.admin
         };
-
         res.json(formattedJob);
     } catch (error) {
         console.error('Error fetching job:', error);
